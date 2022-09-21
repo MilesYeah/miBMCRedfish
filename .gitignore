@@ -1,0 +1,6 @@
+logs
+.vscode
+.idea
+__pycache__
+*.zip
+*.pdf

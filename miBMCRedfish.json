@@ -1,0 +1,133 @@
+{
+    "auth_group": "auth",
+    "auth": {
+        "username": "miles",
+        "password": "Aa123456",
+        "BMCIP": "192.168.123.98"
+    },
+    "auth_intel": {
+        "username": "admin",
+        "password": "Superuser@123",
+        "BMCIP": "192.168.123.98"
+    },
+    "testThermalSensor": {
+        "caseID": 0,
+        "method": "test_thermal_sensor",
+        "URI": "redfish/v1/Chassis/FCP_Baseboard/Thermal",
+        "standardList": [
+            "Aggr2_Temp",
+            "Aggr1_Temp",
+            "BB_BMC_Temp",
+            "BB_M2_Temp",
+            "BB_OCP_Temp",
+            "BB_P0_VR_Temp",
+            "BB_P1_VR_Temp",
+            "BB_Riser_2_Temp",
+            "CPU0_VR_Temp",
+            "CPU1_VR_Temp",
+            "DTS_CPU0",
+            "DTS_CPU1",
+            "Die_CPU0",
+            "Die_CPU1",
+            "Front_Panel_Temp",
+            "Margin_CPU0",
+            "Margin_CPU1",
+            "P0_DIMM_ABCD_Mgn",
+            "P0_DIMM_EFGH_Mgn",
+            "P1_DIMM_ABCD_Mgn",
+            "P1_DIMM_EFGH_Mgn",
+            "PCH_Temp",
+            "PSU1_Temperature",
+            "PSU2_Temperature"
+        ],
+        "excludeList": [
+            "Aggr1 Temp",
+            "BB BMC Temp"
+        ],
+        "resp_group": "Temperatures",
+        "expected_sensor_count": 10
+    },
+    "testVoltageSensor": {
+        "caseID": 1,
+        "method": "test_voltage_sensor",
+        "URI": "redfish/v1/Chassis/FCP_Baseboard/Power",
+        "standardList": [
+            "P105_PCH_AUX",
+            "P12V_AUX",
+            "P12V_PSU",
+            "P1V8_PCH",
+            "P3V3",
+            "P3VBAT",
+            "P5V",
+            "PVCCD_HV_CPU0",
+            "PVCCD_HV_CPU1",
+            "PVCCFA_EHV_CPU0",
+            "PVCCFA_EHV_CPU1",
+            "PVCCIN_CPU0",
+            "PVCCIN_CPU1",
+            "PVCCINFAON_CPU0",
+            "PVCCINFAON_CPU1",
+            "PVNN_PCH_AUX"
+        ],
+        "excludeList": [],
+        "resp_group": "Voltages",
+        "expected_sensor_count": 10
+    },
+    "testSensor": {
+        "caseID": 2,
+        "method": "test_sensor",
+        "URI": "redfish/v1/Chassis/FCP_Baseboard/Sensors",
+        "standardList": [],
+        "excludeList": [],
+        "resp_group": "Members",
+        "expected_sensor_count": 11
+    },
+    "testFWVersions": {
+        "caseID": 3,
+        "method": "test_firmware_versions",
+        "URI": "redfish/v1/UpdateService/FirmwareInventory",
+        "standardList": {
+            "HSBP1_CPLD1": "00.02.01.01",
+            "HSBP1_CPLD2": "00.02.01.01",
+            "afm_recovery": "0.0",
+            "afm_active": "0.0",
+            "bios_active": "SE5C7411.86B.8424.D03.2207271338",
+            "bios_recovery": "84.24.4403",
+            "bmc_active": "egs-1.19-0-gd174d3-3cc10000",
+            "bmc_recovery": "egs-1.19-0-0000",
+            "cpld_active": "FCP_v2p0",
+            "cpld_recovery": "2.0",
+            "me": "06.00.03.172.0"
+        },
+        "excludeList": []
+    },
+    "testRedfishSEL": {
+        "caseID": 4,
+        "method": "test_redfish_sel",
+        "URI": "redfish/v1/Systems/system/LogServices/EventLog/Entries",
+        "standardList": [],
+        "excludeList": [
+            "OpenBMC.0.1.BIOSBoot",
+            "OpenBMC.0.1.BMCTimeUpdatedViaHost",
+            "OpenBMC.0.1.CPUStatus",
+            "OpenBMC.0.1.ChassisIntrusionDetected",
+            "OpenBMC.0.1.DCPowerOff",
+            "OpenBMC.0.1.DCPowerOn",
+            "OpenBMC.0.1.EventLogCleared",
+            "OpenBMC.0.1.InvalidLoginAttempted",
+            "OpenBMC.0.1.InventoryAdded",
+            "OpenBMC.0.1.InventoryRemoved",
+            "OpenBMC.0.1.LinkStatusChanged",
+            "OpenBMC.0.1.OCPStatus",
+            "OpenBMC.0.1.PowerButtonPressed",
+            "OpenBMC.0.1.PowerRestorePolicyApplied",
+            "OpenBMC.0.1.PowerSupplyInserted",
+            "OpenBMC.0.1.PowerSupplyPowerLost",
+            "OpenBMC.0.1.SELEntryAdded",
+            "OpenBMC.0.1.ServiceFailure",
+            "OpenBMC.0.1.SystemInterfaceUnprovisioned",
+            "OpenBMC.0.1.FirmwareUpdateStarted",
+            "OpenBMC.0.1.FirmwareUpdateStaged"
+        ]
+    }
+}
