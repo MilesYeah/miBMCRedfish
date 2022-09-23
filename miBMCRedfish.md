@@ -269,6 +269,10 @@ All parameters are defined in file `miBMCRedfish.json`
 
 ## Release note
 
+### 1.2
+* Optimize logging module
+  * Each log level has it own color, such as green, red, yellow
+
 ### 1.1
 * Add an option to customize log level while initializing object for MiBMCRedfishBase
 * Add option to show Version

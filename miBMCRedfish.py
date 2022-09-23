@@ -181,7 +181,10 @@ class MiBMCRedfishBase(object):
         if self.current_case:
             # super().__del__()
             logger.info(f"Test result:{json.dumps(self.test_result, indent=4)}")
-            logger.info(f"Over All Test Passed: {self.test_passed}")
+            if self.test_passed:
+                logger.info(f"Over All Test Passed: {self.test_passed}")
+            else:
+                logger.error(f"Over All Test Passed: {self.test_passed}")
 
     @property
     def auth_group(self):
@@ -270,7 +273,7 @@ def init_case(case):
 
 
 class MiBMCRedfish(MiBMCRedfishBase):
-    VERSION = 1.1
+    VERSION = 1.2
 
     def __init__(self, conf_fpn='miBMCRedfish.json', *args, **kwargs):
         super().__init__(conf_fpn, *args, **kwargs)
