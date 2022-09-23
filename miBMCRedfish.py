@@ -276,7 +276,7 @@ def init_case(case):
 
 
 class MiBMCRedfish(MiBMCRedfishBase):
-    VERSION = 1.2
+    VERSION = 1.3
 
     def __init__(self, conf_fpn='miBMCRedfish.json', *args, **kwargs):
         super().__init__(conf_fpn, *args, **kwargs)
