@@ -269,6 +269,11 @@ All parameters are defined in file `miBMCRedfish.json`
 
 ## Release note
 
+### 1.3
+* Fix a log message bug in v1.2 since we used colorlog, so there are some unexpected charactors in each message, see below example for reference
+  * `[1;32mI 2022-09-23 10:16:15,161 [0m| [34mINFO`
+* Add python inpretater path for Linux usage
+
 ### 1.2
 * Optimize logging module
   * Each log level has it own color, such as green, red, yellow

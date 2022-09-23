@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import requests
 # from requests_toolbelt import MultipartEncoder
 import copy

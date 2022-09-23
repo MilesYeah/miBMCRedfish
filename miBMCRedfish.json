@@ -8,7 +8,7 @@
     "auth_intel": {
         "username": "admin",
         "password": "Superuser@123",
-        "BMCIP": "192.168.123.98"
+        "BMCIP": "10.239.55.154"
     },
     "testThermalSensor": {
         "caseID": 0,

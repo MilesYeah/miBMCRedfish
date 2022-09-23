@@ -1,7 +1,10 @@
+#!/usr/bin/python3
+
 import collections
 import functools
 import json
 import logging
+import os
 import re
 import urllib.parse
 from collections import OrderedDict

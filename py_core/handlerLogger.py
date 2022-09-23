@@ -1,12 +1,12 @@
+#!/usr/bin/python3
+
 import logging
 
 from logging import handlers
 
-# import colorlog as colorlog
 import colorlog as colorlog
 
 from py_core.base0core import CORE_PARENT_PATH
-# from handlerFile import HandlerFile
 from py_core.handlerFile import HandlerFile
 
 # 日志级别关系映射
@@ -47,8 +47,8 @@ class Logger(logging.Logger):
         # fmt_str = colorlog.ColoredFormatter('%(log_color)s[%(asctime)s] [%(name)s] [%(levelname)s]: %(message)s',
         #                                     log_colors=self.log_colors_config)
         # fmt_str = '%(asctime)s-%(filename)s[#%(lineno)d]-%(levelname)s: %(message)s'
-        # fmt_str = '%(asctime)s-%(filename)s-%(levelname)s: %(message)s'
-        # fmt = logging.Formatter(fmt_str)
+        fmt_str = '%(asctime)s-%(filename)s-%(levelname)s: %(message)s'
+        fmt = logging.Formatter(fmt_str)
 
         # formatter = colorlog.ColoredFormatter(
         #     '%(log_color)s%(levelname)1.1s %(asctime)s %(reset)s| '
@@ -93,7 +93,7 @@ class Logger(logging.Logger):
 
         # 往文件里写入#指定间隔时间自动生成文件的处理器
         th = handlers.TimedRotatingFileHandler(filename=filename, when=when, backupCount=back_count, encoding='utf-8')
-        th.setFormatter(formatter)
+        th.setFormatter(fmt)
         th.setLevel(self.level)
         self.addHandler(th)
 

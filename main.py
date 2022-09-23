@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import argparse
 # from collections import FunctionType
 import re

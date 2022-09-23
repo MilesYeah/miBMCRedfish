@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import os
 
 PACKAGE_NAME = "py_core"
