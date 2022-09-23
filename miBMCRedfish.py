@@ -1,6 +1,7 @@
 import collections
 import functools
 import json
+import logging
 import re
 import urllib.parse
 from collections import OrderedDict
@@ -156,18 +157,31 @@ class MiBMCRedfishBase(object):
     _token = None
     _case_conf = None
     _auth = None
+    log_level = logging.INFO
 
-    def __init__(self, conf_fpn):
+    def __init__(self, conf_fpn, *args, **kwargs):
         self.conf_fpn = conf_fpn
-        logger.info(f"The configuration file we are using is: {self.conf_fpn}")
+
+        logger.setLevel(self.log_level)
+        if "log_level" in kwargs:
+            log_level = kwargs.get("log_level")
+            if log_level in (logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL):
+                logger.setLevel(log_level)
+            elif isinstance(log_level, int) and 0 < log_level < 50:
+                logger.setLevel(log_level)
+            else:
+                logger.critical(f"Wrong log level is set")
+
+        logger.debug(f"The configuration file we are using is: {self.conf_fpn}")
 
         self.obj_confs = ParserJSON(self.conf_fpn)
         pass
 
     def __del__(self):
-        # super().__del__()
-        logger.info(f"Test result:{json.dumps(self.test_result, indent=4)}")
-        logger.info(f"Over All Test Passed: {self.test_passed}")
+        if self.current_case:
+            # super().__del__()
+            logger.info(f"Test result:{json.dumps(self.test_result, indent=4)}")
+            logger.info(f"Over All Test Passed: {self.test_passed}")
 
     @property
     def auth_group(self):
@@ -256,8 +270,10 @@ def init_case(case):
 
 
 class MiBMCRedfish(MiBMCRedfishBase):
-    def __init__(self, conf_fpn='miBMCRedfish.json'):
-        super().__init__(conf_fpn)
+    VERSION = 1.1
+
+    def __init__(self, conf_fpn='miBMCRedfish.json', *args, **kwargs):
+        super().__init__(conf_fpn, *args, **kwargs)
 
     @init_case("testThermalSensor")
     def test_thermal_sensor(self):

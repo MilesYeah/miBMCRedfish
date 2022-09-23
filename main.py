@@ -14,7 +14,7 @@ parser.add_argument('-n', '--num', help="specify cases number to run", type=str)
 # parser.add_argument('-m', '--module', help="specify module to run", type=str)
 
 parser.add_argument("-v", "--verbose", help="increase output verbosity", action="store_true")
-parser.add_argument("-V", help="Show version of package")
+parser.add_argument("-V", "--version", help="Show version of package", action="store_true")
 
 args = parser.parse_args()
 
@@ -28,6 +28,10 @@ if args.json:
     obj = MiBMCRedfish(args.json)
 else:
     obj = MiBMCRedfish()
+
+if args.version:
+    logger.info(f"Version of miBMCRedfish: {obj.VERSION}")
+    exit(0)
 
 AVAILABLE_CASES = []
 for attr in MiBMCRedfish.__dict__:
@@ -52,7 +56,7 @@ if args.cases:
             pass
 elif args.num:
     try:
-        if ":" in args.num or "-" in args.num :
+        if ":" in args.num or "-" in args.num:
             start, end = re.split('[-:]', args.num)
             TO_RUNs = AVAILABLE_CASES[int(start):int(end) + 1]
         elif re.findall('all', args.num, re.I):

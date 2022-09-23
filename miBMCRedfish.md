@@ -16,18 +16,19 @@ Previous log files will be renamed to `all.log.{file_modify_datetime}.bak`
 
 ### Command line instructions
 ```hlp
-python.exe .\main.py -h
+python main.py -h
 
-usage: main.py [-h] [-j JSON] [-l] [-c CASES] [-n NUM] [-v]
+usage: main.py [-h] [-j JSON] [-l] [-c CASES] [-n NUM] [-v] [-V]
 
 options:
   -h, --help            show this help message and exit
   -j JSON, --json JSON  specify configuration file to run
   -l, --ls              list available cases
   -c CASES, --cases CASES
-                        specify cases to run
+                        specify case names to run
   -n NUM, --num NUM     specify cases number to run
   -v, --verbose         increase output verbosity
+  -V, --version         Show version of package
 ```
 
 * `-j JSON, --json JSON`
@@ -37,22 +38,22 @@ options:
 * `-l, --ls`
   * list avaiable test cases
 * `-c CASES, --cases CASES`
-  * specify case names to be tests
+  * specify to be tested case names
   * use `all` to run all cases, case insensitive
-  * use `,` or `:` split case names
-  * Example: 
     * `python.exe main.py -c all`
+  * use `,` or `:` split case names, `,:`can be used at same time
     * `python.exe main.py -c test_thermal_sensor,test_voltage_sensor:test_firmware_versions`
+  * Example: 
 * `-n NUM, --num NUM`
-  * specify case names to be tests
+  * specify to be tested case names
   * use `all` to run all cases, case insensitive
   * use `,` to specify single enumerations of case, this can also specify test sequence
+    * `python.exe main.py -n 0,3,1`
   * use `-` or `:` to specify a series of case
-  * Example: 
     * `python.exe main.py -n 0:3`
     * `python.exe main.py -n 0-3`
-    * `python.exe main.py -n 0,3,1`
-
+* `-V, --version`
+  * Show version of MiBMCRedfish
 
 
 
@@ -267,6 +268,11 @@ All parameters are defined in file `miBMCRedfish.json`
 
 
 ## Release note
+
+### 1.1
+* Add an option to customize log level while initializing object for MiBMCRedfishBase
+* Add option to show Version
+  * when specifying showing FW of MiBMCRedfishBase, the test result will not be shown.
 
 ### 1.0
 * Add command line options.
