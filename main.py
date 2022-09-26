@@ -73,12 +73,15 @@ elif args.num:
         logger.info("Please select from below list:")
         for item in enumerate(AVAILABLE_CASES):
             print(f"{item[0]:> 6} : {item[1].__name__}")
-        exit(1)
+        exit(2)
 else:
     logger.error("Please specify one or more case to run.")
-    exit(2)
+    exit(3)
 
 for case in TO_RUNs:
     case(obj)
+
+if not obj.test_passed:
+    exit(1)
 
 pass
