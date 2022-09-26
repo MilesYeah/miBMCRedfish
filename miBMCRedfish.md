@@ -16,9 +16,10 @@ Previous log files will be renamed to `all.log.{file_modify_datetime}.bak`
 
 ### Command line instructions
 ```hlp
+
 python main.py -h
 
-usage: main.py [-h] [-j JSON] [-l] [-c CASES] [-n NUM] [-v] [-V]
+usage: main.py [-h] [-j JSON] [-l] [-c CASES] [-n NUM] [-a] [-v] [-V]
 
 options:
   -h, --help            show this help message and exit
@@ -27,8 +28,11 @@ options:
   -c CASES, --cases CASES
                         specify case names to run
   -n NUM, --num NUM     specify cases number to run
+  -a, --auto            auto sense
   -v, --verbose         increase output verbosity
   -V, --version         Show version of package
+
+
 ```
 
 * `-j JSON, --json JSON`
@@ -52,6 +56,8 @@ options:
   * use `-` or `:` to specify a series of case
     * `python.exe main.py -n 0:3`
     * `python.exe main.py -n 0-3`
+* `-a, --auto`            
+  * auto sense
 * `-V, --version`
   * Show version of MiBMCRedfish
 
