@@ -51,6 +51,11 @@ class ParserJSON(BaseConfParser):
     def __init__(self, fpn, encoding="utf-8"):
         super().__init__(fpn, encoding="utf-8")
 
+    def save_file(self, fpn=None):
+        target = fpn if fpn else self.fpn
+        with open(target, mode='w', encoding='utf8') as f:
+            json.dump(self.data_all, f, indent=4)
+
 
 if __name__ == "__main__":
     a = ParserJSON('temp.json')

@@ -47,25 +47,40 @@ class ParserCaseConf(collections.UserDict):
         if self.data:
             return self.data.get("URI", None)
 
-    @property
-    def standard_list(self):
+    def get_standard_list(self):
         if self.data:
             return self.data.get("standardList", None)
 
-    @property
-    def exclude_list(self):
+    def set_standard_list(self, std_list):
+        if self.data:
+            self.data["standardList"] = std_list
+
+    standard_list = property(get_standard_list, set_standard_list)
+
+    def get_exclude_list(self):
         if self.data:
             return self.data.get("excludeList", None)
+
+    def set_exclude_list(self, data):
+        if self.data:
+            self.data["excludeList"] = data
+
+    exclude_list = property(get_exclude_list, set_exclude_list)
 
     @property
     def resp_group(self):
         if self.data:
             return self.data.get("resp_group", None)
 
-    @property
-    def expected_sensor_count(self):
+    def get_expected_sensor_count(self):
         if self.data:
             return self.data.get("expected_sensor_count", None)
+
+    def set_expected_sensor_count(self, count):
+        if self.data:
+            self.data["expected_sensor_count"] = count
+
+    expected_sensor_count = property(get_expected_sensor_count, set_expected_sensor_count)
 
 
 class ParserSensor(collections.UserDict):
@@ -159,11 +174,13 @@ class MiBMCRedfishBase(object):
 
     _token = None
     _case_conf = None
+    _obj_conf = None
     _auth = None
     log_level = logging.INFO
 
-    def __init__(self, conf_fpn, *args, **kwargs):
+    def __init__(self, conf_fpn, auto=False, *args, **kwargs):
         self.conf_fpn = conf_fpn
+        self._auto = auto
 
         logger.setLevel(self.log_level)
         if "log_level" in kwargs:
@@ -188,6 +205,14 @@ class MiBMCRedfishBase(object):
                 logger.info(f"Over All Test Passed: {self.test_passed}")
             else:
                 logger.error(f"Over All Test Passed: {self.test_passed}")
+
+    def get_auto(self):
+        return self._auto
+
+    def set_auto(self, auto):
+        self._auto = auto
+
+    auto = property(get_auto, set_auto)
 
     @property
     def auth_group(self):
@@ -237,10 +262,19 @@ class MiBMCRedfishBase(object):
         }
         return headers
 
+    def get_case_conf(self):
+        return self.obj_confs.get_group(self.current_case, None)
+
+    def set_case_conf(self, conf):
+        self.obj_confs.data_all[self.current_case] = conf
+
+    case_conf = property(get_case_conf, set_case_conf)
+
     @property
     def obj_conf(self):
-        conf_dict = self.obj_confs.get_group(self.current_case, None)
-        return ParserCaseConf(conf_dict)
+        if not self._obj_conf:
+            self._obj_conf = ParserCaseConf(self.case_conf)
+        return self._obj_conf
 
     def handle_case_result(self, passed, msg=None):
         if passed is True:
@@ -260,6 +294,7 @@ def init_case(case):
         @functools.wraps(func)
         def wrapper(self, *args, **kwargs):
             self.current_case = case
+            self._obj_conf = None       # set this to be None at the beginning of each case, so the case conf data will be loaded.
 
             if case not in self.test_result:
                 self.test_result[case] = OrderedDict()
@@ -270,13 +305,16 @@ def init_case(case):
                 logger.info(f"Case configuration: {json.dumps(self.obj_conf.data, indent=4)}")
 
             ret = func(self, *args, **kwargs)
+            if self.auto:
+                self.obj_confs.data_all[case].update(self.obj_conf.data)    # update test conf when auto sense
+            pass
             return ret
         return wrapper
     return deco
 
 
 class MiBMCRedfish(MiBMCRedfishBase):
-    VERSION = 1.3
+    VERSION = 1.5
 
     def __init__(self, conf_fpn='miBMCRedfish.json', *args, **kwargs):
         super().__init__(conf_fpn, *args, **kwargs)
@@ -295,20 +333,27 @@ class MiBMCRedfish(MiBMCRedfishBase):
                 logger.warning(f"Excluding sensor: {obj_sensor.member_id}")
                 continue
 
-            if obj_sensor.is_healthy:
-                logger.info(f"{obj_sensor.member_id} is in good health.")
+            if self.auto:
+                pass
             else:
-                self.handle_case_result(passed=False, msg=f"{obj_sensor.member_id} is in bad health.")
+                if obj_sensor.is_healthy:
+                    logger.info(f"{obj_sensor.member_id} is in good health.")
+                else:
+                    self.handle_case_result(passed=False, msg=f"{obj_sensor.member_id} is in bad health.")
 
             sensors_founded.append(obj_sensor.member_id)
 
-        if self.obj_conf.standard_list:
-            logger.info(f"Sensors expected:{json.dumps(self.obj_conf.standard_list, indent=4)}")
-            logger.info(f"Sensors founded:{json.dumps(sensors_founded, indent=4)}")
-            if sorted(self.obj_conf.standard_list) == sorted(sensors_founded):
-                logger.info(f"All sensors are found..")
-            else:
-                self.handle_case_result(passed=False, msg=f"Sensors list comparing failed.")
+        if self.auto:
+            self.obj_conf.standard_list = sensors_founded
+            # pass
+        else:
+            if self.obj_conf.standard_list:
+                logger.info(f"Sensors expected:{json.dumps(self.obj_conf.standard_list, indent=4)}")
+                logger.info(f"Sensors founded:{json.dumps(sensors_founded, indent=4)}")
+                if sorted(self.obj_conf.standard_list) == sorted(sensors_founded):
+                    logger.info(f"All sensors are found..")
+                else:
+                    self.handle_case_result(passed=False, msg=f"Sensors list comparing failed.")
         pass
 
     @init_case("testVoltageSensor")
@@ -325,20 +370,26 @@ class MiBMCRedfish(MiBMCRedfishBase):
                 logger.warning(f"Excluding sensor: {obj_sensor.name}")
                 continue
 
-            if obj_sensor.is_healthy:
-                logger.info(f"{obj_sensor.name} is in good health.")
+            if self.auto:
+                pass
             else:
-                self.handle_case_result(passed=False, msg=f"{obj_sensor.name} is in bad health.")
+                if obj_sensor.is_healthy:
+                    logger.info(f"{obj_sensor.name} is in good health.")
+                else:
+                    self.handle_case_result(passed=False, msg=f"{obj_sensor.name} is in bad health.")
 
             sensors_founded.append(obj_sensor.member_id)
 
-        if self.obj_conf.standard_list:
-            logger.info(f"Sensors expected:{json.dumps(self.obj_conf.standard_list, indent=4)}")
-            logger.info(f"Sensors founded:{json.dumps(sensors_founded, indent=4)}")
-            if sorted(self.obj_conf.standard_list) == sorted(sensors_founded):
-                logger.info(f"All sensors are found..")
-            else:
-                self.handle_case_result(passed=False, msg=f"Sensors list comparing failed.")
+        if self.auto:
+            self.obj_conf.standard_list = sensors_founded
+        else:
+            if self.obj_conf.standard_list:
+                logger.info(f"Sensors expected:{json.dumps(self.obj_conf.standard_list, indent=4)}")
+                logger.info(f"Sensors founded:{json.dumps(sensors_founded, indent=4)}")
+                if sorted(self.obj_conf.standard_list) == sorted(sensors_founded):
+                    logger.info(f"All sensors are found..")
+                else:
+                    self.handle_case_result(passed=False, msg=f"Sensors list comparing failed.")
         pass
 
     @init_case("testSensor")
@@ -349,12 +400,15 @@ class MiBMCRedfish(MiBMCRedfishBase):
 
         # check whether sensor count is expected
         real_sensor_count = self.obj_req.resp_body.get('Members@odata.count', None)
-        if self.obj_conf.expected_sensor_count == real_sensor_count:
-            logger.error(f"Sensor count is expected: {real_sensor_count}")
+        if self.auto:
+            self.obj_conf.expected_sensor_count = real_sensor_count
         else:
-            logger.error(f"Sensor count is not expected: got#{real_sensor_count}, "
-                         f"expected#{self.obj_conf.expected_sensor_count}")
-            self.handle_case_result(passed=False, msg="Sensor count is not expected")
+            if self.obj_conf.expected_sensor_count == real_sensor_count:
+                logger.error(f"Sensor count is expected: {real_sensor_count}")
+            else:
+                logger.error(f"Sensor count is not expected: got#{real_sensor_count}, "
+                             f"expected#{self.obj_conf.expected_sensor_count}")
+                self.handle_case_result(passed=False, msg="Sensor count is not expected")
 
         # get and check real sensor data
         members = get_odata_ids(data=self.obj_req.resp_body)
@@ -367,20 +421,26 @@ class MiBMCRedfish(MiBMCRedfishBase):
                 logger.warning(f"Excluding sensor: {obj_sensor.id}")
                 continue
 
-            if obj_sensor.is_healthy:
-                logger.info(f"{obj_sensor.name} is in good health.")
+            if self.auto:
+                pass
             else:
-                self.handle_case_result(passed=False, msg=f"{obj_sensor.name} is in bad health.")
+                if obj_sensor.is_healthy:
+                    logger.info(f"{obj_sensor.name} is in good health.")
+                else:
+                    self.handle_case_result(passed=False, msg=f"{obj_sensor.name} is in bad health.")
 
             sensors_founded.append(obj_sensor.id)
 
-        if self.obj_conf.standard_list:
-            logger.info(f"Sensors expected:{json.dumps(self.obj_conf.standard_list, indent=4)}")
-            logger.info(f"Sensors founded:{json.dumps(sensors_founded, indent=4)}")
-            if sorted(self.obj_conf.standard_list) == sorted(sensors_founded):
-                logger.info(f"All sensors are found..")
-            else:
-                self.handle_case_result(passed=False, msg=f"Sensors list comparing failed.")
+        if self.auto:
+            self.obj_conf.standard_list = sensors_founded
+        else:
+            if self.obj_conf.standard_list:
+                logger.info(f"Sensors expected:{json.dumps(self.obj_conf.standard_list, indent=4)}")
+                logger.info(f"Sensors founded:{json.dumps(sensors_founded, indent=4)}")
+                if sorted(self.obj_conf.standard_list) == sorted(sensors_founded):
+                    logger.info(f"All sensors are found..")
+                else:
+                    self.handle_case_result(passed=False, msg=f"Sensors list comparing failed.")
         pass
 
     @init_case("testFWVersions")
@@ -398,30 +458,36 @@ class MiBMCRedfish(MiBMCRedfishBase):
                 logger.warning(f"Skip checking FW: {obj_fw.desc}")
                 continue
 
-            if self.obj_conf.standard_list and obj_fw.id in self.obj_conf.standard_list:
+            if self.auto:
                 pass
             else:
-                self.handle_case_result(passed=False, msg=f"{obj_fw.id} cannot be found in standard list.")
+                if self.obj_conf.standard_list and obj_fw.id in self.obj_conf.standard_list:
+                    pass
+                else:
+                    self.handle_case_result(passed=False, msg=f"{obj_fw.id} cannot be found in standard list.")
 
             fws[obj_fw.id] = obj_fw.version
             fws_founded.append(obj_fw.id)
             pass
 
-        # chk result
-        if fws == self.obj_conf.standard_list:
-            logger.info(f"All FW versions Are expected, data we got {json.dumps(fws, indent=4)}.")
+        if self.auto:
+            self.obj_conf.standard_list = fws
         else:
-            logger.error(f"FW versions test failed, data we got {json.dumps(fws, indent=4)}, "
-                         f"expected list:{json.dumps(self.obj_conf.standard_list, indent=4)}")
-            self.handle_case_result(passed=False, msg="FW versions test failed")
-
-        if self.obj_conf.standard_list:
-            logger.info(f"FWs expected:{json.dumps(self.obj_conf.standard_list, indent=4)}")
-            logger.info(f"FWs founded:{json.dumps(fws_founded, indent=4)}")
-            if sorted(self.obj_conf.standard_list) == sorted(fws_founded):
-                logger.info(f"All sensors are found..")
+            # chk result
+            if fws == self.obj_conf.standard_list:
+                logger.info(f"All FW versions Are expected, data we got {json.dumps(fws, indent=4)}.")
             else:
-                self.handle_case_result(passed=False, msg=f"Sensors list comparing failed.")
+                logger.error(f"FW versions test failed, data we got {json.dumps(fws, indent=4)}, "
+                             f"expected list:{json.dumps(self.obj_conf.standard_list, indent=4)}")
+                self.handle_case_result(passed=False, msg="FW versions test failed")
+
+            if self.obj_conf.standard_list:
+                logger.info(f"FWs expected:{json.dumps(self.obj_conf.standard_list, indent=4)}")
+                logger.info(f"FWs founded:{json.dumps(fws_founded, indent=4)}")
+                if sorted(self.obj_conf.standard_list) == sorted(fws_founded):
+                    logger.info(f"All sensors are found..")
+                else:
+                    self.handle_case_result(passed=False, msg=f"Sensors list comparing failed.")
         pass
 
     @init_case("testRedfishSEL")
@@ -434,12 +500,19 @@ class MiBMCRedfish(MiBMCRedfishBase):
             if obj.message_id in self.obj_conf.exclude_list:
                 continue
             else:
-                self.handle_case_result(passed=False, msg=f"Found unexpected Redfish SEL on {obj.created} "
-                                                          f": {obj.message_id}.")
+                if self.auto:
+                    self.obj_conf.exclude_list.append(obj.message_id)
+                else:
+                    self.handle_case_result(passed=False, msg=f"Found unexpected Redfish SEL on {obj.created} "
+                                                              f": {obj.message_id}.")
+
+        if self.auto:
+            self.obj_conf.exclude_list = sorted(list(set(self.obj_conf.exclude_list)))
 
 
 if __name__ == "__main__":
     a = MiBMCRedfish()
+    a.auto = True
     a.test_thermal_sensor()
     a.test_voltage_sensor()
     a.test_sensor()

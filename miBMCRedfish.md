@@ -269,6 +269,10 @@ All parameters are defined in file `miBMCRedfish.json`
 
 ## Release note
 
+### 1.5
+* Add option auto-sense
+  * a file name can be specified before saving data.
+
 ### 1.4
 * When test case is not passed, the exit code will not be 0.
 * Add pip whiles so we can initialize the environment offline.

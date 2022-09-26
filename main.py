@@ -13,6 +13,7 @@ parser.add_argument('-j', '--json', help="specify configuration file to run", ty
 parser.add_argument('-l', '--ls', help="list available cases", action='store_true')
 parser.add_argument('-c', '--cases', help="specify case names to run", type=str)
 parser.add_argument('-n', '--num', help="specify cases number to run", type=str)
+parser.add_argument('-a', '--auto', help="auto sense", action='store_true')
 # parser.add_argument('-m', '--module', help="specify module to run", type=str)
 
 parser.add_argument("-v", "--verbose", help="increase output verbosity", action="store_true")
@@ -30,6 +31,11 @@ if args.json:
     obj = MiBMCRedfish(args.json)
 else:
     obj = MiBMCRedfish()
+
+if args.auto:
+    obj.auto = True
+    args.num = 'all'
+
 
 if args.version:
     logger.info(f"Version of miBMCRedfish: {obj.VERSION}")
@@ -80,6 +86,13 @@ else:
 
 for case in TO_RUNs:
     case(obj)
+
+if args.auto:
+    fn = input("Enter to store configuration in original json file, or type a file name: ")
+    fpn = fn if fn else obj.obj_confs.fpn
+    obj.obj_confs.save_file(fpn=fpn)
+    exit(0)
+    pass
 
 if not obj.test_passed:
     exit(1)
