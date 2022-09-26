@@ -32,7 +32,6 @@ options:
   -v, --verbose         increase output verbosity
   -V, --version         Show version of package
 
-
 ```
 
 * `-j JSON, --json JSON`
@@ -40,7 +39,7 @@ options:
   * default: `miBMCRedfish.json`
   * if the json file is not in current folder, specify abs path please
 * `-l, --ls`
-  * list avaiable test cases
+  * list available test cases
 * `-c CASES, --cases CASES`
   * specify to be tested case names
   * use `all` to run all cases, case insensitive
@@ -278,6 +277,7 @@ All parameters are defined in file `miBMCRedfish.json`
 ### 1.5
 * Add option auto-sense
   * a file name can be specified before saving data.
+* Add script to init environment.
 
 ### 1.4
 * When test case is not passed, the exit code will not be 0.
